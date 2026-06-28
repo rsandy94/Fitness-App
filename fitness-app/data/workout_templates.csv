@@ -1,0 +1,6 @@
+name,type,description
+Push,push,"Chest, Shoulders, Triceps"
+Pull,pull,"Back, Biceps, Rear Delts"
+Lower 1,lower1,"Quad Focused, Glutes, Hamstrings"
+Lower 2,lower2,"Hamstrings Focused, Glutes, Quads"
+Upper,upper,"Chest, Shoulders, Triceps, Back, Biceps, Rear Delts"

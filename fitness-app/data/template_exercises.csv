@@ -1,0 +1,29 @@
+template_name,exercise_name,sets,reps_range,sort_order
+Push,Incline dumbbell press,4,8-12,1
+Push,Seated Mid chest cable fly,3,10-15,2
+Push,Bench press,4,8-12,3
+Push,LU raises,3,10-20,4
+Push,Cable pushdown,2,10-15,5
+Push,Single arm overhead extension,2,10-15,6
+Pull,Pull Ups,3,6-10,1
+Pull,Lat Focused Cable Row,3,10-15,2
+Pull,Rear Delt Cable Fly,3,10-15,3
+Pull,Dumbbell Preacher Curl,2,8-12,4
+Pull,Hammer Curls,2,8-12,5
+Pull,Standing Face Pulls,2,10-15,6
+Lower 1,Barbell Back Squat,3,6-10,1
+Lower 1,Romanian Deadlift,3,8-12,2
+Lower 1,Walking Lunges,3,8-12,3
+Lower 1,Seated Leg Extensions,3,10-15,4
+Lower 1,Calf Raises,3,10-15,5
+Upper,Flat Dumbbell Press,4,8-12,1
+Upper,Barbell Row,3,8-12,2
+Upper,Dumbbell Shoulder Press,2,8-12,3
+Upper,Lat Pulldowns,3,8-12,4
+Upper,Standing High to Low Cable Flyes,3,10-15,5
+Upper,Cable Lateral Raise,3,10-20,6
+Lower 2,Deadlift,3,6-10,1
+Lower 2,Bulgarian Split Squat Glute Focused,3,8-12,2
+Lower 2,Barbell Hip Thrust,3,10-15,3
+Lower 2,Seated Leg Curls,3,10-15,4
+Lower 2,Seated Calf Raise,1,8-12,5

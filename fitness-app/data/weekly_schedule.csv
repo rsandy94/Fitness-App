@@ -1,0 +1,8 @@
+day_of_week,template_name,is_rest_day
+0,Push,false
+1,Pull,false
+2,Lower 1,false
+3,,true
+4,Upper,false
+5,Lower 2,false
+6,,true
