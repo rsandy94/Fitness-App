@@ -43,6 +43,50 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const head = document.head;
+
+    const manifest = document.createElement('link');
+    manifest.rel = 'manifest';
+    manifest.href = '/manifest.json';
+    head.appendChild(manifest);
+
+    const appleTouch = document.createElement('link');
+    appleTouch.rel = 'apple-touch-icon';
+    appleTouch.href = '/icons/icon-180.png';
+    head.appendChild(appleTouch);
+
+    const metaTheme = document.createElement('meta');
+    metaTheme.name = 'theme-color';
+    metaTheme.content = '#0d1117';
+    head.appendChild(metaTheme);
+
+    const metaApple = document.createElement('meta');
+    metaApple.name = 'apple-mobile-web-app-capable';
+    metaApple.content = 'yes';
+    head.appendChild(metaApple);
+
+    const metaAppleStatus = document.createElement('meta');
+    metaAppleStatus.name = 'apple-mobile-web-app-status-bar-style';
+    metaAppleStatus.content = 'black-translucent';
+    head.appendChild(metaAppleStatus);
+
+    const metaAppleTitle = document.createElement('meta');
+    metaAppleTitle.name = 'apple-mobile-web-app-title';
+    metaAppleTitle.content = 'Fitness';
+    head.appendChild(metaAppleTitle);
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+          console.warn('SW registration failed:', err);
+        });
+      });
+    }
+  }, []);
+
   async function checkAuth() {
     const auth = await isAuthenticated();
     setIsAuth(auth);
