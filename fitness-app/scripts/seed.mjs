@@ -133,7 +133,7 @@ async function seedExercises() {
     const thumbnail_url = await uploadThumbnail(slug, thumbnail_file, youtube_link);
 
     const musclesArr = muscles
-      ? muscles.split(';').map(m => m.trim()).filter(Boolean)
+      ? muscles.split(/[,;]/).map(m => m.trim()).filter(Boolean)
       : [];
 
     const { data, error } = await supabase

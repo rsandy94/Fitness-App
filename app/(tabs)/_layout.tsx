@@ -68,6 +68,14 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}></span>,
         }}
       />
+      <Tabs.Screen
+        name="library"
+        options={{
+          title: 'Exercise Library',
+          tabBarLabel: 'Library',
+          tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}>📚</span>,
+        }}
+      />
     </Tabs>
   );
 }

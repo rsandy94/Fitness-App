@@ -100,6 +100,26 @@ export type Database = {
           sort_order?: number;
         };
       };
+      template_exercise_overrides: {
+        Row: {
+          id: string;
+          template_exercise_id: string;
+          exercise_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          template_exercise_id: string;
+          exercise_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          template_exercise_id?: string;
+          exercise_id?: string;
+          created_at?: string;
+        };
+      };
       weekly_schedule: {
         Row: {
           id: string;

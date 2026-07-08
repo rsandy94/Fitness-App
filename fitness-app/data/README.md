@@ -41,7 +41,7 @@ See `data/example/` for sample rows based on the current Push template.
 ## Notes
 
 - **Slug is just for the Storage filename** — it doesn't need to match the exercise name. Pick something stable and kebab-case (e.g. `bench-press`, `incline-db-press`).
-- **`muscles` separator is `;`** (semicolon) — avoids CSV-quoting headaches inside the field.
+- **`muscles` separator** — use `,` (comma) or `;` (semicolon). Both are accepted; the seeder splits on either.
 - **Renaming an exercise** requires deleting the old DB row first (because `name` is the unique key).
 - **YouTube link must point to a real video** — invalid IDs produce a 404 and the thumbnail will be null. Verify links before committing.
 - **Delete an exercise** → delete the row from `exercises.csv` AND delete any rows in `template_exercises.csv` that reference it. Re-run seed (DB cascade handles cleanup, or run `npm run seed` twice).
