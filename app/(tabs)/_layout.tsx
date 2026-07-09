@@ -6,9 +6,16 @@ import { isAuthenticated } from '@/lib/storage';
 export default function TabLayout() {
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
   const insets = useSafeAreaInsets();
+  const [rerenderKey, setRerenderKey] = useState(0);
 
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const t = setTimeout(() => setRerenderKey((k) => k + 1), 50);
+    return () => clearTimeout(t);
   }, []);
 
   async function checkAuth() {
@@ -26,6 +33,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      key={rerenderKey}
       screenOptions={{
         tabBarActiveTintColor: '#58a6ff',
         tabBarInactiveTintColor: '#8b949e',

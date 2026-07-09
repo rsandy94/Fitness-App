@@ -188,7 +188,7 @@ export default function SwapScreen() {
             {ranked.other.length > 0 && (
               <>
                 <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Other Alternatives</Text>
-                {ranked.other.map(({ exercise }) => (
+                {ranked.other.map((exercise) => (
                   <ExerciseRow
                     key={exercise.id}
                     exercise={exercise}

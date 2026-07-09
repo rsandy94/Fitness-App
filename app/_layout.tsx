@@ -48,6 +48,14 @@ export default function RootLayout() {
 
     const head = document.head;
 
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport && !viewport.getAttribute('content')?.includes('viewport-fit=cover')) {
+      viewport.setAttribute(
+        'content',
+        (viewport.getAttribute('content') || '') + ', viewport-fit=cover'
+      );
+    }
+
     const manifest = document.createElement('link');
     manifest.rel = 'manifest';
     manifest.href = '/manifest.json';
