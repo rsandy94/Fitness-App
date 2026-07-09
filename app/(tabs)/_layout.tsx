@@ -9,13 +9,8 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const [rerenderKey, setRerenderKey] = useState(0);
 
-  // On web PWA, useSafeAreaInsets may return 0, so use CSS env() fallback
-  const tabBarPaddingBottom = Platform.OS === 'web'
-    ? `calc(8px + env(safe-area-inset-bottom, 0px))`
-    : 8 + insets.bottom;
-  const tabBarHeight = Platform.OS === 'web'
-    ? `calc(60px + env(safe-area-inset-bottom, 0px))`
-    : 60 + insets.bottom;
+  // On web PWA, useSafeAreaInsets may return 0, so use hardcoded iPhone home indicator height
+  const safeAreaBottom = Platform.OS === 'web' ? 34 : insets.bottom;
 
   useEffect(() => {
     checkAuth();
@@ -50,9 +45,9 @@ export default function TabLayout() {
           backgroundColor: '#161b22',
           borderTopColor: '#30363d',
           borderTopWidth: 1,
-          paddingBottom: tabBarPaddingBottom,
+          paddingBottom: 8 + safeAreaBottom,
           paddingTop: 8,
-          height: tabBarHeight,
+          height: 60 + safeAreaBottom,
         },
         headerStyle: {
           backgroundColor: '#0d1117',
