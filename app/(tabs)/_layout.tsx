@@ -1,5 +1,6 @@
 import { Tabs, Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { isAuthenticated } from '@/lib/storage';
 
@@ -7,6 +8,9 @@ export default function TabLayout() {
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
   const insets = useSafeAreaInsets();
   const [rerenderKey, setRerenderKey] = useState(0);
+
+  // On web PWA, useSafeAreaInsets may return 0, so use a fallback
+  const safeAreaBottom = insets.bottom || (Platform.OS === 'web' ? 20 : 0);
 
   useEffect(() => {
     checkAuth();
@@ -41,9 +45,9 @@ export default function TabLayout() {
           backgroundColor: '#161b22',
           borderTopColor: '#30363d',
           borderTopWidth: 1,
-          paddingBottom: 8 + insets.bottom,
+          paddingBottom: 8 + safeAreaBottom,
           paddingTop: 8,
-          height: 60 + insets.bottom,
+          height: 60 + safeAreaBottom,
         },
         headerStyle: {
           backgroundColor: '#0d1117',
