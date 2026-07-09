@@ -12,7 +12,7 @@ import {
 import { useRouter, Stack } from 'expo-router';
 import { useAllExercises } from '@/hooks/useExercises';
 import {
-  exerciseMuscleGroups,
+  getPrimaryMuscleGroup,
   MAIN_MUSCLE_GROUPS,
 } from '@/lib/muscleMap';
 
@@ -50,9 +50,8 @@ export default function LibraryScreen() {
     if (!allExercises) return [];
     const counts: Record<string, number> = {};
     for (const ex of allExercises) {
-      for (const g of exerciseMuscleGroups(ex.muscles_involved)) {
-        counts[g] = (counts[g] || 0) + 1;
-      }
+      const primary = getPrimaryMuscleGroup(ex.muscles_involved);
+      if (primary) counts[primary] = (counts[primary] || 0) + 1;
     }
     return MAIN_MUSCLE_GROUPS.filter((g) => counts[g]).map((g) => ({
       group: g,
@@ -64,7 +63,7 @@ export default function LibraryScreen() {
     if (!allExercises || !muscleView) return [];
     const q = search.toLowerCase().trim();
     return allExercises
-      .filter((e) => exerciseMuscleGroups(e.muscles_involved).includes(muscleView))
+      .filter((e) => getPrimaryMuscleGroup(e.muscles_involved) === muscleView)
       .filter((e) => !q || e.name.toLowerCase().includes(q))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [allExercises, muscleView, search]);

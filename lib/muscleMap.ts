@@ -91,6 +91,15 @@ export function exerciseMuscleGroups(muscles: string[] = []): string[] {
   return [...new Set(groups)];
 }
 
+export function getPrimaryMuscleGroup(muscles: string[] = []): string | null {
+  const exploded = explodeMuscles(muscles);
+  for (const m of exploded) {
+    const group = getMainMuscleGroup(m);
+    if (group) return group;
+  }
+  return null;
+}
+
 export function countMuscleOverlap(a: string[] = [], b: string[] = []): number {
   const groupsA = exerciseMuscleGroups(a);
   const groupsB = exerciseMuscleGroups(b);
