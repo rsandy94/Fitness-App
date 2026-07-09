@@ -10,8 +10,3 @@ body {
   margin: 0;
   padding: 0;
 }
-
-/* iOS PWA safe area fallback - ensures content doesn't get hidden behind home indicator */
-#root {
-  padding-bottom: env(safe-area-inset-bottom);
-}
