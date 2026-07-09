@@ -1,9 +1,11 @@
 import { Tabs, Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { isAuthenticated } from '@/lib/storage';
 
 export default function TabLayout() {
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     checkAuth();
@@ -31,9 +33,9 @@ export default function TabLayout() {
           backgroundColor: '#161b22',
           borderTopColor: '#30363d',
           borderTopWidth: 1,
-          paddingBottom: 8,
+          paddingBottom: 8 + insets.bottom,
           paddingTop: 8,
-          height: 60,
+          height: 60 + insets.bottom,
         },
         headerStyle: {
           backgroundColor: '#0d1117',

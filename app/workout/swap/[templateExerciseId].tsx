@@ -17,10 +17,8 @@ import {
   useSwapExercise,
 } from '@/hooks/useExercises';
 import {
-  countMuscleOverlap,
-  exerciseMuscleGroups,
+  getPrimaryMuscleGroup,
   MAIN_MUSCLE_GROUPS,
-  getMainMuscleGroup,
 } from '@/lib/muscleMap';
 
 const MUSCLE_ICONS: Record<string, string> = {
@@ -53,22 +51,25 @@ export default function SwapScreen() {
   const ranked = useMemo(() => {
     if (!allExercises || !original) return { recommended: [], other: [] };
     const q = search.toLowerCase().trim();
+    const originalPrimary = getPrimaryMuscleGroup(original.muscles_involved);
+
     const filtered = allExercises
       .filter((e) => e.id !== original.id)
       .filter((e) => !q || e.name.toLowerCase().includes(q));
 
-    const scored = filtered.map((e) => ({
-      exercise: e,
-      overlap: countMuscleOverlap(e.muscles_involved, original.muscles_involved),
-    }));
+    const recommended = filtered
+      .filter((e) => {
+        const p = getPrimaryMuscleGroup(e.muscles_involved);
+        return originalPrimary && p === originalPrimary;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
 
-    const recommended = scored
-      .filter((s) => s.overlap > 0)
-      .sort((a, b) => b.overlap - a.overlap || a.exercise.name.localeCompare(b.exercise.name));
-
-    const other = scored
-      .filter((s) => s.overlap === 0)
-      .sort((a, b) => a.exercise.name.localeCompare(b.exercise.name));
+    const other = filtered
+      .filter((e) => {
+        const p = getPrimaryMuscleGroup(e.muscles_involved);
+        return !originalPrimary || p !== originalPrimary;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     return { recommended, other };
   }, [allExercises, original, search]);
@@ -77,9 +78,8 @@ export default function SwapScreen() {
     if (!allExercises) return [];
     const counts: Record<string, number> = {};
     for (const ex of allExercises) {
-      for (const g of exerciseMuscleGroups(ex.muscles_involved)) {
-        counts[g] = (counts[g] || 0) + 1;
-      }
+      const primary = getPrimaryMuscleGroup(ex.muscles_involved);
+      if (primary) counts[primary] = (counts[primary] || 0) + 1;
     }
     return MAIN_MUSCLE_GROUPS.filter((g) => counts[g]).map((g) => ({
       group: g,
@@ -91,7 +91,7 @@ export default function SwapScreen() {
     if (!allExercises || !muscleView) return [];
     const q = search.toLowerCase().trim();
     return allExercises
-      .filter((e) => exerciseMuscleGroups(e.muscles_involved).includes(muscleView))
+      .filter((e) => getPrimaryMuscleGroup(e.muscles_involved) === muscleView)
       .filter((e) => !q || e.name.toLowerCase().includes(q))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [allExercises, muscleView, search]);
@@ -174,11 +174,11 @@ export default function SwapScreen() {
             {ranked.recommended.length > 0 && (
               <>
                 <Text style={styles.sectionHeader}>Recommended Alternatives</Text>
-                {ranked.recommended.map(({ exercise, overlap }) => (
+                {ranked.recommended.map((exercise) => (
                   <ExerciseRow
                     key={exercise.id}
                     exercise={exercise}
-                    badge={overlap >= 2 ? `${overlap} muscle match` : '1 muscle match'}
+                    badge="Same primary muscle"
                     onPress={() => handlePickExercise(exercise.id)}
                   />
                 ))}
