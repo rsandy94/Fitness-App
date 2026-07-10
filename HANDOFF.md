@@ -7,13 +7,111 @@ Personal fitness tracking PWA built with Expo, targeting iOS Safari (add to home
 
 ---
 
-## Current Status: Exercise Swap Feature Live, End-to-End Working
+## Current Status: PWA Tab Bar Fixed for iOS
 
-All core features + swap feature operational. 44 exercises across 5 templates, weekly schedule populated, video player embedded inline, exercise swap with smart muscle-based recommendations working. Test swaps persisted in DB. Some UX polish still pending.
+Exercise swap feature live. PWA tab bar clipping on iPhone resolved. Deployed via Netlify as PWA (Add to Home Screen on iPhone 16). 44 exercises across 5 templates, weekly schedule populated, video player embedded inline, exercise swap with smart muscle-based recommendations working.
+
+### Phase 15: iOS PWA Tab Bar Edge-to-Edge Fix ✅ (NEW this session)
+
+**Problem:** Black gap + grey strip below the tab bar on iPhone PWA. Previous fix used `marginBottom: 34` to push the tab bar above the home indicator, but this left a visible 34px strip of page background (`#0d1117`) below the tab bar. The grey strip below that was iOS's letterbox/letterbox color from the html element defaulting.
+
+**Root cause:**
+- `marginBottom` creates external space, so the page background shows through
+- The `+html.tsx` `responsiveBackground` was setting body to `#fff` (light) or `#000` (dark) — neither matches the tab bar's `#161b22`
+- The PWA meta tags (`apple-mobile-web-app-capable`, `theme-color`, etc.) were only injected via JS in `_layout.tsx`, not in the initial HTML
+
+**Fix (this session):**
+1. **`app/(tabs)/_layout.tsx`**: Switched from `marginBottom: 34` to `paddingBottom: 34` + added `safeAreaBottom` to `height`. Tab bar's background now extends to the very bottom of the screen, while the 34px padding pushes icons/labels up above the home indicator. Also pinned with `position: 'absolute', left/right/bottom: 0`.
+2. **`app/+html.tsx`**: Added the PWA meta tags to initial HTML (not just JS-injected), and set `html, body { background-color: #161b22 }` to match the tab bar — so any letterbox zone blends seamlessly.
+3. **`global.css`**: Set `html { background-color: #161b22 }` explicitly; `body` stays `#0d1117` (page bg).
+4. **`manifest.json`**: Already correct (`display: standalone`, `background_color: #0d1117`).
+
+**To deploy:** rebuild with `npx expo export --platform web`, then on iPhone: delete app from home screen → clear Safari history/cache → re-add via Safari → reopen. iOS aggressively caches PWA manifest + index.
+
+
 
 ---
 
 ## What's Been Completed
+
+### Phase 14: iOS PWA Tab Bar Fix ✅ (NEW this session)
+
+**Problem:** When deployed as a PWA via Netlify and added to iPhone home screen, the bottom tab bar labels ("Dashboard", "Schedule", "Progress", "Library") were clipped/hidden by the iPhone's home indicator bar (the thin gesture bar at the bottom used for swipe-up navigation).
+
+**Root cause chain:**
+1. `react-native-safe-area-context`'s `useSafeAreaInsets()` returns `0` on web/PWA — it cannot detect safe areas
+2. The tab bar was positioned at the very bottom of the viewport with no accommodation for the home indicator
+3. The home indicator (34px tall on modern iPhones) physically overlaps the bottom of the screen, covering the tab bar labels
+4. A previous AI agent tried adding `viewport-fit=cover` dynamically via JavaScript in `_layout.tsx`, but this runs AFTER the browser calculates the viewport — too late for `useSafeAreaInsets()` to work
+
+**Files changed:**
+
+| File | Change | Why |
+|------|--------|-----|
+| `app/+html.tsx` | Added `viewport-fit=cover` to viewport meta tag | Must be in initial HTML before browser calculates viewport |
+| `app/_layout.tsx` | Removed dead dynamic `viewport-fit=cover` injection (lines 52-57 previously) | Ran too late to help; now in `+html.tsx` |
+| `global.css` | Added `html,body,#root { background-color: #0d1117; min-height: 100dvh }` + `body { margin: 0; padding: 0 }` | Prevents white gap at bottom of PWA |
+| `app/(tabs)/_layout.tsx` | Platform-aware safe area fallback + compact styling | See details below |
+
+**Tab bar fix details (`app/(tabs)/_layout.tsx`):**
+
+```tsx
+const safeAreaBottom = Platform.OS === 'web' ? 34 : insets.bottom;
+const compactPadding = Platform.OS === 'web' ? 4 : 0;
+```
+
+```tsx
+tabBarStyle: {
+  paddingBottom: 0,
+  paddingTop: compactPadding,  // 4px on web, 0 on native
+  height: 52 + compactPadding, // 56px on web
+  marginBottom: safeAreaBottom, // 34px on web — pushes tab bar above home indicator
+}
+```
+
+**Key measurements discovered (from React Native Web source code):**
+- Tab bar button internal padding: `5px` (from `styles.tabVerticalUiKit`)
+- TabBarIcon wrapper: `28px` tall (`styles.wrapperUikit`)
+- Tab label: `fontSize: 10` (~14px with line height)
+- Min content height needed: 5 + 28 + 14 + 5 = **52px**
+- iPhone home indicator zone: **34px** from bottom of screen
+
+**Approach:** Use `marginBottom` (not `paddingBottom`) to push the tab bar above the home indicator. This keeps the tab bar itself compact (56px) while the 34px margin space shows the page background color (`#0d1117`) instead of the tab bar color (`#161b22`).
+
+**Build command:** `npx expo export --platform web` → outputs to `dist/`
+
+---
+
+## PWA Configuration
+
+The app is deployed as a PWA via Netlify. Key PWA setup:
+
+**`app.json` (expo config):**
+- `web.output: "static"` — static HTML export for Netlify
+- `web.themeColor: "#0d1117"`
+
+**`app/_layout.tsx` (dynamic head injection):**
+- `apple-mobile-web-app-capable: yes`
+- `apple-mobile-web-app-status-bar-style: black-translucent`
+- `apple-mobile-web-app-title: Fitness`
+- Manifest link + apple-touch-icon
+- Service worker registration (`/sw.js`)
+
+**`app/+html.tsx`:**
+- `viewport-fit=cover` — extends viewport into safe areas (required for home indicator handling)
+- `shrink-to-fit=no` — prevents iOS Safari auto-shrinking
+
+**`public/manifest.json`:**
+- `display: standalone`
+- Icons: 192x192 + 512x512 (maskable)
+
+**`global.css`:**
+- `min-height: 100dvh` — dynamic viewport height for PWA
+- `background-color: #0d1117` — prevents white flash/gap
+
+---
+
+## What's Been Completed (Previous Phases)
 
 ### Phase 1: Project Setup ✅
 - Expo SDK 56 + Expo Router
@@ -298,6 +396,9 @@ Group-level overlap (not exact muscle string match):
 9. **Muscles stored as single comma-joined string** - seeder now splits on `,` or `;`; `getMainMuscleGroup` also splits on commas as fallback
 10. **PostgREST returns to-one as object, not array** - `asArray` helper in `useExercises.ts`
 11. **3-dots menu covered by sibling cards** - `zIndex: 100` on active row
+12. **iOS PWA tab bar labels clipped by home indicator** - `viewport-fit=cover` in initial HTML + `marginBottom: 34` on tab bar (2026-07-09)
+13. **White gap at bottom of PWA** - `background-color` + `min-height: 100dvh` on html/body/root in global.css (2026-07-09)
+14. **Tab bar too tall (102px)** - optimized to 56px height + 34px margin with compact 4px padding (2026-07-09)
 
 ### Open / Potential
 - AsyncStorage on web uses localStorage (works but not ideal for production)
@@ -342,11 +443,19 @@ Group-level overlap (not exact muscle string match):
 - [ ] Remove / Edit Sets & Reps / Superset menu options (currently Swap only)
 - [ ] Health tab in swap modal
 - [ ] Progress: date range selector, weight change %, trend line
-- [ ] PWA manifest.json for "Add to Home Screen"
 - [ ] Service worker for offline support
 - [ ] Loading skeletons, pull-to-refresh, haptic feedback, animations
 - [ ] Test `eas build` for Android APK
 - [ ] Delete legacy `fitness-app/Thumbnails-local-backup/` and `fitness-app/scripts/upload-thumbnails.js`
+
+### PWA / Deployment
+- [x] PWA manifest.json for "Add to Home Screen"
+- [x] Tab bar labels visible on iPhone PWA
+- [x] No white gap at bottom of PWA
+- [x] Viewport-fit=cover in initial HTML
+- [ ] Favicon/icon refinements (maskable icon may need padding adjustment)
+- [ ] Test PWA install prompt on different iOS versions
+- [ ] Test PWA behavior on Android Chrome
 
 ---
 
@@ -367,7 +476,7 @@ Group-level overlap (not exact muscle string match):
 - [ ] Track sets with weight and reps
 - [ ] Finish workout updates status
 - [ ] Progress shows weight graph
-- [ ] iOS Safari test (add to home screen)
+- [x] iOS PWA test (add to home screen) — tab bar fixed, labels visible
 
 ---
 
@@ -396,7 +505,10 @@ Group-level overlap (not exact muscle string match):
    - Open workout → tap 3-dots → Swap → pick new exercise
    - Override persists; tap Undo to revert
 7. **CSV uses `,` between muscles** (not `;`) — both work now, but user data uses commas
-8. **PWA manifest** is the next big feature for "Add to Home Screen"
+8. **PWA is deployed on Netlify** — push `dist/` folder or connect repo for auto-deploy
+9. **iPhone home indicator** is the thin gesture bar at bottom of screen (not a physical button) — `useSafeAreaInsets()` returns 0 on web/PWA, so we hardcode `34px` for modern iPhones
+10. **Tab bar measurements**: min content height = 52px (5+28+14+5), home indicator zone = 34px, current tab bar = 56px height + 34px marginBottom
+11. **To rebuild for Netlify**: `npx expo export --platform web` → push `dist/`
 
 ---
 
@@ -415,5 +527,5 @@ Group-level overlap (not exact muscle string match):
 
 ---
 
-**Last updated:** 2026-07-08
-**Status:** Exercise swap feature live and working. 44 exercises, 5 templates, 7 schedule days, 2 test overrides in DB. Ready for iOS testing and feature polish.
+**Last updated:** 2026-07-09
+**Status:** PWA tab bar fixed for iPhone. Exercise swap feature live and working. 44 exercises, 5 templates, 7 schedule days. Deployed on Netlify as PWA. Ready for full iOS testing and feature polish.

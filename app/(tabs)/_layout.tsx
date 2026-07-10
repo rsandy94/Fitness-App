@@ -1,25 +1,12 @@
 import { Tabs, Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { isAuthenticated } from '@/lib/storage';
 
 export default function TabLayout() {
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
-  const insets = useSafeAreaInsets();
-  const [rerenderKey, setRerenderKey] = useState(0);
-
-  // On web PWA, useSafeAreaInsets may return 0, so use hardcoded iPhone home indicator height
-  const safeAreaBottom = Platform.OS === 'web' ? 34 : insets.bottom;
 
   useEffect(() => {
     checkAuth();
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    const t = setTimeout(() => setRerenderKey((k) => k + 1), 50);
-    return () => clearTimeout(t);
   }, []);
 
   async function checkAuth() {
@@ -37,17 +24,16 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      key={rerenderKey}
       screenOptions={{
         tabBarActiveTintColor: '#58a6ff',
         tabBarInactiveTintColor: '#8b949e',
         tabBarStyle: {
-          backgroundColor: '#161b22',
+          backgroundColor: '#0d1117',
           borderTopColor: '#30363d',
           borderTopWidth: 1,
-          paddingBottom: 8 + safeAreaBottom,
+          paddingBottom: 30,
           paddingTop: 8,
-          height: 60 + safeAreaBottom,
+          height: 90,
         },
         headerStyle: {
           backgroundColor: '#0d1117',
@@ -79,7 +65,7 @@ export default function TabLayout() {
         options={{
           title: 'Progress',
           tabBarLabel: 'Progress',
-          tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}></span>,
+          tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}>📈</span>,
         }}
       />
       <Tabs.Screen
