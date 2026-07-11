@@ -28,12 +28,12 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#58a6ff',
         tabBarInactiveTintColor: '#8b949e',
         tabBarStyle: {
-          backgroundColor: '#0d1117',
+          backgroundColor: '#161b22',
           borderTopColor: '#30363d',
           borderTopWidth: 1,
-          paddingBottom: 30,
+          paddingBottom: 13,
           paddingTop: 8,
-          height: 90,
+          height: 65,
         },
         headerStyle: {
           backgroundColor: '#0d1117',
